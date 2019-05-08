@@ -325,7 +325,7 @@ class WESS_Decoder(nn.Module):
                  decoder_n_layer_word=1,
                  decoder_n_layer_alpha=1,
                  max_decode_length=1000,
-                 decoder_postnet_hidden=384,
+                 #  decoder_postnet_hidden=384,
                  decoder_postnet_output=80,
                  #  linear_projection_hidden=128,
                  linear_projection_output=1,
@@ -351,7 +351,7 @@ class WESS_Decoder(nn.Module):
         self.decoder_n_layer_word = decoder_n_layer_word
         self.decoder_n_layer_alpha = decoder_n_layer_alpha
         self.max_decode_length = max_decode_length
-        self.decoder_postnet_hidden = decoder_postnet_hidden
+        # self.decoder_postnet_hidden = decoder_postnet_hidden
         self.decoder_postnet_output = decoder_postnet_output
         # self.linear_projection_hidden = linear_projection_hidden
         self.linear_projection_output = linear_projection_output
@@ -385,8 +385,10 @@ class WESS_Decoder(nn.Module):
             [self.decoder_block_alpha for _ in range(self.decoder_n_layer_alpha)])
 
         # PostNet
+        # self.decoder_postnet = FFN(
+        #     self.decoder_input_hidden, self.decoder_postnet_hidden, self.decoder_postnet_output)
         self.decoder_postnet = FFN(
-            self.decoder_input_hidden, self.decoder_postnet_hidden, self.decoder_postnet_output)
+            self.decoder_input_hidden, self.decoder_postnet_output)
 
         self.postnet = PostNet()
 
@@ -485,6 +487,7 @@ class WESS_Decoder(nn.Module):
                 mel_output.append(model_output)
 
             mel_output = torch.cat(mel_output, 1)[:, 0:mel_target.size(1), :]
+            # print("mel_output:", mel_output.size())
             mel_output_postnet = self.postnet(mel_output) + mel_output
 
             # print("mel_output:", mel_output.size())
