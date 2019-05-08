@@ -51,6 +51,10 @@ def main(args):
         if not os.path.exists(hp.checkpoint_path):
             os.mkdir(hp.checkpoint_path)
 
+    # Init logger
+    if not os.path.exists("logger"):
+        os.mkdir("logger")
+
     # Training
     model = model.train()
 
@@ -108,13 +112,13 @@ def main(args):
             m_l = mel_loss.item()
             g_l = gate_loss.item()
 
-            with open("total_loss.txt", "a") as f_total_loss:
+            with open(os.path.join("logger", "total_loss.txt"), "a") as f_total_loss:
                 f_total_loss.write(str(t_l)+"\n")
 
-            with open("mel_loss.txt", "a") as f_mel_loss:
+            with open(os.path.join("logger", "mel_loss.txt"), "a") as f_mel_loss:
                 f_mel_loss.write(str(m_l)+"\n")
 
-            with open("gate_loss.txt", "a") as f_gate_loss:
+            with open(os.path.join("logger", "gate_loss.txt"), "a") as f_gate_loss:
                 f_gate_loss.write(str(g_l)+"\n")
 
             # Backward
@@ -137,7 +141,7 @@ def main(args):
                 print(str1)
                 print(str2)
 
-                with open("logger.txt", "a") as f_logger:
+                with open(os.path.join("logger", "logger.txt"), "a") as f_logger:
                     f_logger.write(str1 + "\n")
                     f_logger.write(str2 + "\n")
                     f_logger.write("\n")
@@ -160,17 +164,17 @@ def main(args):
 
 
 def adjust_learning_rate(optimizer, step):
-    if step == 10000:
+    if step == hp.decay_step[0]:
         # if step == 20:
         # print("update")
         for param_group in optimizer.param_groups:
-            param_group['lr'] = 0.0006
+            param_group['lr'] = 0.0005
 
-    elif step == 30000:
+    elif step == hp.decay_step[1]:
         for param_group in optimizer.param_groups:
             param_group['lr'] = 0.0003
 
-    elif step == 100000:
+    elif step == hp.decay_step[2]:
         for param_group in optimizer.param_groups:
             param_group['lr'] = 0.0001
 
