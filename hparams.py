@@ -24,6 +24,6 @@ weight_decay = 1e-6
 checkpoint_path = "./model_new"
 grad_clip_thresh = 0.8
 decay_step = [10000, 30000, 70000]
-save_step = 50
+save_step = 200
 log_step = 5
 clear_Time = 20
