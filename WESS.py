@@ -14,7 +14,7 @@ import hparams as hp
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # device = torch.device("cpu")
 
-if_parallel = True
+if_parallel = False
 
 
 class WESS_Encoder(nn.Module):
@@ -457,7 +457,7 @@ class WESS_Decoder(nn.Module):
                     device) for _ in range(mel_target.size(0))]).long()
                 pos_embedding = self.position_embedding(pos_input)
 
-                # Default Teacher Forced
+                # Teacher Forced
 
                 # Word
                 model_input_word = mel_target[:, range_start:range_end, :]
@@ -493,6 +493,7 @@ class WESS_Decoder(nn.Module):
             # print("mel_output:", mel_output.size())
 
             gate_predicted = self.linear_projection(mel_output)
+            # print(gate_predicted)
             gate_predicted = gate_predicted.squeeze(2)
 
             return mel_output, mel_output_postnet, gate_predicted
@@ -551,8 +552,8 @@ class WESS_Decoder(nn.Module):
                 range_start = cnt_pos * self.decode_per_step
                 range_end = range_start + self.decode_per_step
 
-                pos_input = torch.stack([torch.Tensor([i for i in range(range_start, range_end)]).to(
-                    device) for _ in range(mel_target.size(0))]).long()
+                pos_input = torch.stack([torch.Tensor([i for i in range(
+                    range_start, range_end)]).to(device) for _ in range(1)]).long()
                 pos_embedding = self.position_embedding(pos_input)
 
                 # Default Teacher Forced
@@ -585,7 +586,9 @@ class WESS_Decoder(nn.Module):
                 # print(model_output.size())
 
                 gate_predicted = self.linear_projection(model_output)
+                # print(gate_predicted)
                 gate_predicted = torch.sigmoid(gate_predicted)
+                # print(gate_predicted)
 
                 # print(gate_predicted.size())
                 # print(gate_predicted)
