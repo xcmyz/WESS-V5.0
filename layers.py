@@ -302,7 +302,7 @@ class LinearProjection(nn.Module):
         self.output_size = output_size
 
         self.linear_layer = nn.Linear(self.input_size, self.output_size)
-        # self.sigmoid = nn.Sigmoid()
+        self.sigmoid = nn.Sigmoid()
         # self.dropout = nn.Dropout(dropout)
         # self.linear_layer_2 = nn.Linear(self.hidden_size, self.output_size)
         # self.sigmoid_2 = nn.Sigmoid()
