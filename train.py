@@ -13,6 +13,8 @@ from loss import WESSLoss
 from data_utils import WESSDataLoader, collate_fn, DataLoader
 import hparams as hp
 
+if_parallel = False
+
 
 def main(args):
     # Get device
@@ -80,7 +82,7 @@ def main(args):
             mels = data_of_batch["mel"]
             embeddings = data_of_batch["embeddings"]
             sep_lists = data_of_batch["sep"]
-            gate_target = data_of_batch["gate"]
+            gates = data_of_batch["gate"]
 
             if torch.cuda.is_available():
                 texts = torch.from_numpy(texts).long().to(device)
@@ -88,13 +90,25 @@ def main(args):
                 texts = torch.from_numpy(texts).long().to(device)
 
             mels = torch.from_numpy(mels).to(device)
+            gates = torch.from_numpy(gates).float().to(device)
 
-            gates = torch.from_numpy(gate_target).float().to(device)
+            # print("mels:", mels.size())
+            # print("gates:", gates.size())
+            # print(gates)
 
             # Forward
             output, mel_target, gate_target = model(
                 texts, embeddings, sep_lists, indexs_list, mels, gates)
             mel_output, mel_out_postnet, gate_predicted = output
+
+            # # Test
+            # print(mel_out_postnet.size())
+            # print(mel_out_postnet)
+
+            # test_mel = mel_out_postnet[0].cpu().detach().numpy()
+            # np.save("test_mel.npy", test_mel)
+
+            # print(gate_predicted)
 
             # print()
             # print("mel target size:", mels.size())
@@ -102,11 +116,16 @@ def main(args):
             # print("gate predict:", gate_predicted.size())
 
             # Calculate loss
-            total_loss, mel_loss, gate_loss = wess_loss(
-                mel_output, mel_out_postnet, gate_predicted, mel_target, gate_target)
-            # print(gate_loss)
-            # loss_list.append(total_loss.item())
-            # print(total_loss.item())
+            if if_parallel:
+                total_loss, mel_loss, gate_loss = wess_loss(
+                    mel_output, mel_out_postnet, gate_predicted, mel_target, gate_target)
+                # print(gate_loss)
+                # loss_list.append(total_loss.item())
+                # print(total_loss.item())
+            else:
+                # print("there")
+                total_loss, mel_loss, gate_loss = wess_loss(
+                    mel_output, mel_out_postnet, gate_predicted, mels, gates)
 
             t_l = total_loss.item()
             m_l = mel_loss.item()
@@ -184,6 +203,6 @@ def adjust_learning_rate(optimizer, step):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--restore_step', type=int,
-                        help='checkpoint', default=0)
+                        help='checkpoint', default=3000)
     args = parser.parse_args()
     main(args)
