@@ -20,7 +20,7 @@ if __name__ == "__main__":
     print("Model Have Been Loaded.")
 
     checkpoint = torch.load(os.path.join(
-        hparams.checkpoint_path, 'checkpoint_10600.pth.tar'))
+        hparams.checkpoint_path, 'checkpoint_2800.pth.tar'))
     model.load_state_dict(checkpoint['model'])
     print("Sucessfully Loaded.")
 
@@ -44,8 +44,8 @@ if __name__ == "__main__":
     sep_list = [sep_list]
 
     with torch.no_grad():
-        mel_output = model(characters, embeddings, sep_list)
-        mel_output = mel_output[0]
+        output = model(characters, embeddings, sep_list)
+        mel_output = output[0][1]
         # print(mel_output.size())
         mel_output = mel_output.cpu().numpy()[0].T
         # print(np.shape(mel_output))
